@@ -64,6 +64,15 @@ module.exports = function (grunt) {
 			var stat = fs.statSync(CONFIG.IN_FOLDER + fileName);
 			var birthtime = stat.birthtime;
 
+			var offset = grunt.option("offset");
+			if (offset) {
+				if (typeof offset === "number") {
+					birthtime.setTime(birthtime.getTime() + offset);
+				} else {
+					grunt.log.error("offset must be a number (milliseconds)");
+				}
+			}
+
 			var newName = dateFormat(birthtime, "yyyy-mm-dd HH.MM.ss") + extension;
 			newName = getNextFileName(fileNames, newName);
 			fileNames.push(newName);
