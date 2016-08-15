@@ -10,7 +10,7 @@ var dateFormat = require("dateformat");
 var CONFIG = {
 	IN_FOLDER: "./in/",
 	OUT_FOLDER: "./out/",
-	EXTENSIONS: ["jpg", "png", "gif", "cr2", "mov", "mp4", "avi"]
+	EXTENSIONS: ["jpg", "jpeg", "png", "gif", "cr2", "mov", "mp4", "avi"]
 };
 
 var letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
