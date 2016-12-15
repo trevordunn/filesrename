@@ -15,6 +15,19 @@ var CONFIG = {
 
 var letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
 
+var filesData = [
+	/*
+	{
+		originalIndex: -1,
+		originalName: "",
+		creationDate: null,
+		dateName: "",
+		extension: "",
+		newName: ""
+	}
+	*/
+];
+
 var getNextFileName = function (fileNames, name, _nextSuffixI) {
 	if (fileNames.indexOf(name) === -1) {
 		return name;
@@ -45,12 +58,12 @@ module.exports = function (grunt) {
 	});
 
 	grunt.registerTask("rename", "Rename all photo/video files according to their creation date", function () {
-		var fileNames = [];
-
 		var extensions = CONFIG.EXTENSIONS;
 		extensions = extensions.map(function (item) {
 			return "." + item;
 		});
+
+		// Gather file names and data:
 
 		var files = fs.readdirSync(CONFIG.IN_FOLDER);
 		files.forEach(function (fileName, index, array) {
@@ -73,15 +86,42 @@ module.exports = function (grunt) {
 				}
 			}
 
-			var newName = dateFormat(birthtime, "yyyy-mm-dd HH.MM.ss") + extension;
+			var newName = dateFormat(birthtime, "yyyy-mm-dd HH.MM.ss");
+
+			var fileData = {
+				originalIndex: index,
+				originalName: fileName,
+				creationDate: birthtime,
+				dateName: newName,
+				extension: extension
+			};
+
+			filesData.push(fileData);
+		});
+
+		// Generate new file names:
+
+		var fileNames = [];
+
+		for (var i = 0, l = filesData.length; i < l; i++) {
+			var fileData = filesData[i];
+
+			var newName = fileData.dateName + fileData.extension;
 			newName = getNextFileName(fileNames, newName);
 			fileNames.push(newName);
 
-			grunt.file.copy(CONFIG.IN_FOLDER + fileName, CONFIG.OUT_FOLDER + newName);
+			fileData.newName = newName;
+		}
 
-			grunt.log.writeln(index, fileName, "->", newName);
-		});
+		// Copy and assign new names to files:
 
+		for (var i = 0, l = filesData.length; i < l; i++) {
+			var fileData = filesData[i];
+
+			grunt.file.copy(CONFIG.IN_FOLDER + fileData.originalName, CONFIG.OUT_FOLDER + fileData.newName);
+
+			grunt.log.writeln(fileData.originalIndex, fileData.originalName, "->", fileData.newName);
+		}
 	});
 
 	grunt.registerTask("default", [
