@@ -53,7 +53,7 @@ module.exports = function (grunt) {
 
 	grunt.initConfig({
 		"clean": {
-			out: [CONFIG.OUT_FOLDER, "!./out/.gitkeep"]
+			out: [CONFIG.OUT_FOLDER + "*", "!" + CONFIG.OUT_FOLDER + ".gitkeep"]
 		}
 	});
 
