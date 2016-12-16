@@ -13,7 +13,9 @@ var CONFIG = {
 	EXTENSIONS: ["jpg", "jpeg", "png", "gif", "cr2", "mov", "mp4", "avi"]
 };
 
+/*
 var letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+*/
 
 var filesData = [
 	/*
@@ -28,17 +30,36 @@ var filesData = [
 	*/
 ];
 
-var getNextFileName = function (fileNames, name, _nextSuffixI) {
-	if (fileNames.indexOf(name) === -1) {
-		return name;
-	}
-
+/*
+var getNextFileName = function (fileNames, name, _nextSuffixI, _nextSuffixPrefix) {
 	var extension = path.extname(name);
 	var basename = path.basename(name, extension);
 
 	_nextSuffixI = _nextSuffixI || 1;
-	var nextSuffix = letters[_nextSuffixI];
-	// TODO: account for reaching end of array.
+	_nextSuffixPrefix = _nextSuffixPrefix || "";
+
+	if (_nextSuffixI >= letters.length) {
+		_nextSuffixI = 0;
+
+		if (_nextSuffixPrefix) {
+			var beginning = _nextSuffixPrefix.slice(0, _nextSuffixPrefix.length - 1);
+			var last = _nextSuffixPrefix.slice(_nextSuffixPrefix.length - 1);
+
+			var lastIndex = letters.indexOf(last);
+
+			if (lastIndex < letters.length - 1) {
+				last = letters[lastIndex++];
+			} else {
+				last = letters[0];
+			}
+
+			_nextSuffixPrefix += beginning + last;
+		} else {
+			_nextSuffixPrefix = letters[0];
+		}
+	}
+
+	var nextSuffix = _nextSuffixPrefix + letters[_nextSuffixI];
 
 	var nextName = basename + nextSuffix + extension;
 
@@ -46,8 +67,9 @@ var getNextFileName = function (fileNames, name, _nextSuffixI) {
 		return nextName;
 	}
 
-	return getNextFileName(fileNames, name, _nextSuffixI + 1);
+	return getNextFileName(fileNames, name, _nextSuffixI + 1, _nextSuffixPrefix);
 }
+*/
 
 module.exports = function (grunt) {
 
@@ -64,6 +86,10 @@ module.exports = function (grunt) {
 		});
 
 		// Gather file names and data:
+
+		var fileNamesCount = {
+			// "fileName.jpg": 1
+		};
 
 		var files = fs.readdirSync(CONFIG.IN_FOLDER);
 		files.forEach(function (fileName, index, array) {
@@ -86,32 +112,27 @@ module.exports = function (grunt) {
 				}
 			}
 
-			var newName = dateFormat(birthtime, "yyyy-mm-dd HH.MM.ss");
+			var dateName = dateFormat(birthtime, "yyyy-mm-dd HH.MM.ss");
+			var newName = dateName + extension;
+
+			var count = fileNamesCount[newName] || 0;
+			fileNamesCount[newName] = ++count;
+
+			if (count > 1) {
+				newName = dateName + "(" + (count - 1) + ")" + extension;
+			}
 
 			var fileData = {
 				originalIndex: index,
 				originalName: fileName,
 				creationDate: birthtime,
-				dateName: newName,
-				extension: extension
+				dateName: dateName,
+				extension: extension,
+				newName: newName
 			};
 
 			filesData.push(fileData);
 		});
-
-		// Generate new file names:
-
-		var fileNames = [];
-
-		for (var i = 0, l = filesData.length; i < l; i++) {
-			var fileData = filesData[i];
-
-			var newName = fileData.dateName + fileData.extension;
-			newName = getNextFileName(fileNames, newName);
-			fileNames.push(newName);
-
-			fileData.newName = newName;
-		}
 
 		// Copy and assign new names to files:
 
