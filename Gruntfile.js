@@ -137,11 +137,15 @@ module.exports = function (grunt) {
 		// Copy and assign new names to files:
 
 		for (var i = 0, l = filesData.length; i < l; i++) {
-			var fileData = filesData[i];
+			var fileData = filesData[i],
+				originalName = fileData.originalName,
+				newName = fileData.newName;
+
+			var nameOutput = originalName === newName ? originalName : originalName + " -> " + newName;
 
 			grunt.file.copy(CONFIG.IN_FOLDER + fileData.originalName, CONFIG.OUT_FOLDER + fileData.newName);
 
-			grunt.log.writeln(fileData.originalIndex, fileData.originalName, "->", fileData.newName);
+			grunt.log.writeln(fileData.originalIndex, nameOutput);
 		}
 	});
 
