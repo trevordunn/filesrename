@@ -100,8 +100,30 @@ module.exports = function (grunt) {
 				return;
 			}
 
-			var stat = fs.statSync(CONFIG.IN_FOLDER + fileName);
-			var birthtime = stat.birthtime;
+			var birthtime = null;
+
+			var nameRegex = grunt.option("name-regex");
+
+			if (nameRegex !== undefined) {
+				nameRegex = new RegExp(nameRegex);
+				var nameRegexMatch = fileName.match(nameRegex);
+
+				if (nameRegexMatch !== null) {
+					birthtime = new Date(
+						nameRegexMatch[1],
+						parseInt(nameRegexMatch[2], 10) - 1,
+						nameRegexMatch[3],
+						nameRegexMatch[4],
+						nameRegexMatch[5],
+						nameRegexMatch[6]
+					);
+				}
+			}
+
+			if (birthtime === null) {
+				var stat = fs.statSync(CONFIG.IN_FOLDER + fileName);
+				birthtime = stat.birthtime;
+			}
 
 			var offset = grunt.option("offset");
 			if (offset) {
