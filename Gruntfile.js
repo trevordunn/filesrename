@@ -13,6 +13,8 @@ var CONFIG = {
 	EXTENSIONS: ["jpg", "jpeg", "png", "gif", "cr2", "mov", "mp4", "avi"]
 };
 
+var args = {};
+
 /*
 var letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
 */
@@ -73,6 +75,10 @@ var getNextFileName = function (fileNames, name, _nextSuffixI, _nextSuffixPrefix
 
 module.exports = function (grunt) {
 
+	args.nameRegex = grunt.option("name-regex");
+	args.offset = grunt.option("offset");
+	args.useMetaCreatedDate = grunt.option("use-meta-created-date") === "true";
+
 	grunt.initConfig({
 		"clean": {
 			out: [CONFIG.OUT_FOLDER + "*", "!" + CONFIG.OUT_FOLDER + ".gitkeep"]
@@ -102,7 +108,7 @@ module.exports = function (grunt) {
 
 			var birthtime = null;
 
-			var nameRegex = grunt.option("name-regex");
+			var nameRegex = args.nameRegex;
 
 			if (nameRegex !== undefined) {
 				nameRegex = new RegExp(nameRegex);
@@ -125,7 +131,7 @@ module.exports = function (grunt) {
 				birthtime = stat.birthtime;
 			}
 
-			var offset = grunt.option("offset");
+			var offset = args.offset;
 			if (offset) {
 				if (typeof offset === "number") {
 					birthtime.setTime(birthtime.getTime() + offset);
